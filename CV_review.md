@@ -148,3 +148,38 @@ LS(i,j)=MASK(i,j)*LA(i,j)+(1-MAKS(i,j))*LB(i,j)
 2. 计算原图像的拉普拉斯图像，获取原图像的梯度值
 3. 构建拉普拉斯算子对应的矩阵A（Ax=b）
 4. 求解方程组，并将像素拷贝回目标图像中
+
+
+
+## 角点检测与特征描述-1
+最小二乘法和SVD分解了解一下
+### 几何变换的参数估计
+估计仿射变换需要至少三个点。。。
+求解方程组Ax=b，直接使用x=A\b或者x=pinv(A)*b
+#### 暂时补充一下矩阵的求导方法
+### 最小二乘法和svd分解求解
+优化minL=||Ax-b||^2<br>
+所以L=![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_22-33-24.png)<br>
+最后的化简得：<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_22-34-46.png)<br>
+关于SVD分解，可以知道![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_22-38-30.png)<br>
+其中U和V都是正交矩阵，S是对角矩阵<br>
+1. 当A是满秩方阵时<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/微信图片_20180618224700.jpg)<br>
+2. 当A非满秩方阵<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/微信图片_20180618225703.jpg)<br>
+### Harris角点检测
+使用当前矩形框和周边矩形框的差异来度量当前点的独特性<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/微信图片_20180618230917.jpg)<br>
+通过计算矩阵H的特征值来判断是否时角点。R=r1*r2-k(r1+r2)^2 其中r1和r2时H矩阵的特征值
+
+### 差异比较之模板匹配
+1. SAD(sum of absolute difference)<br>
+两个矩阵的对应元素的差的绝对值之和
+2. MSE(mean squared error)<br>
+两个矩阵的对应元素的平方之和<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_23-17-55.png)<br>
+3. NCC(normalized cross correlation)<br>
+不知道该怎么描述。。。<br>
+![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_23-20-14.png)<br>
+其中的std时两个矩阵的标准差
