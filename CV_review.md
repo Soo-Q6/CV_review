@@ -132,3 +132,19 @@ expand的操作过程是先将图像进行行或者列的扩展（可分离性�
 3. 生成一个通过MASK合成LA和LB的拉普拉斯金字塔LS<br>
 LS(i,j)=MASK(i,j)*LA(i,j)+(1-MAKS(i,j))*LB(i,j)
 4. 使用LS拉普拉斯金字塔合成新图片。
+
+## 梯度融合
+融合主要的方式：
+1. copy-paste
+2. alpha blending<br>
+掩膜按照一定的权重进行插值
+3. gradient blending<br>
+使用梯度值进行拷贝重构
+
+### 梯度融合
+使用梯度模值和梯度方向进行图像的重构<br>
+[算法](https://github.com/Soo-Q6/CV_review/raw/master/code/梯度合成算法/demo_gradient_blend.m)(怎么计算啊？？？)
+1. 标记目标图像的需要求解的像素坐标
+2. 计算原图像的拉普拉斯图像，获取原图像的梯度值
+3. 构建拉普拉斯算子对应的矩阵A（Ax=b）
+4. 求解方程组，并将像素拷贝回目标图像中
