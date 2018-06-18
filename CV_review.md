@@ -90,3 +90,27 @@ DCT是JPEG压缩标准的核心部分<br>
 ![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_15-11-38.png)
 ![](https://github.com/Soo-Q6/CV_review/raw/master/photo/Snipaste_2018-06-18_15-11-50.png)
 <br>计算？
+
+
+## canny edge detection
+### canny边缘检测算法
+1. 利用高斯梯度算子对图像进行滤波<br>
+对图像进行x，y方向的求偏导，然后进行高斯平滑，由于卷积的结合律，所以可以先对高斯算子进行求偏导，索格结果再与图像进行卷积。
+```matlab
+[dx,dy]=gradient(G); % D is a 2D gaussain;
+Ix=ocnv2(I,dx,'same');
+Iy=conv2(I,dy,'same');
+```
+2. 根据滤波结果计算每一个像素点的边缘强度<br>
+对Ix和Iy求平方和
+```matlab
+Im=sqrt(Ix.*Ix+Iy.*Iy);
+```
+3. 计算边缘方向<br>
+根据Ix和Iy计算梯度方向，使用quiver显示方向。。。
+4. 检测局部最大值<br>
+沿着梯度方向搜索最大值：
+首先进行阈值处理，然后沿着梯度方向搜索（梯度方向需要被限制，八邻域方向）
+5. 连接生成边缘<br>
+沿着边缘放方向搜索下一个边缘点<br>
+迟滞边缘生成，使用threshold_low和threshold_high判断是不是，将点分成100%是边缘，50%是边缘，0%是边缘，当找到边缘点时，根据边缘方向寻找下一个点，如果该点的值在threshold_low之上，则将其标为边缘点，否则不是边缘点。

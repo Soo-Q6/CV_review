@@ -1,0 +1,132 @@
+
+img = imread ('house.png');
+img = rgb2gray(img); 
+img = double (img);
+
+% Value for high and low thresholding
+threshold_low = 0.04;
+threshold_high = 0.165;
+ 
+%% Gaussian filter definition (https://en.wikipedia.org/wiki/Canny_edge_detector)
+G = [2, 4, 5, 4, 2; 4, 9, 12, 9, 4;5, 12, 15, 12, 5;4, 9, 12, 9, 4;2, 4, 5, 4, 2];
+G = 1/159.* G;
+ 
+%Filter for horizontal and vertical direction
+dx = [1 0 -1];
+dy = [1; 0; -1];
+
+%% Convolution of image with Gaussian
+Gx = conv2(G, dx, 'same');
+Gy = conv2(G, dy, 'same');
+ 
+% Convolution of image with Gx and Gy
+Ix = conv2(img, Gx, 'same');
+Iy = conv2(img, Gy, 'same');
+
+
+%% Calculate magnitude and angle
+magnitude = sqrt(Ix.*Ix+Iy.*Iy);
+angle = atan2(Iy, Ix);
+ 
+%% Edge angle conditioning
+angle(angle<0) = pi+angle(angle<0);
+angle(angle>7*pi/8) = pi-angle(angle>7*pi/8);
+
+% Edge angle discretization into 0, pi/4, pi/2, 3*pi/4
+angle(angle>=0&angle<pi/8) = 0;
+angle(angle>=pi/8&angle<3*pi/8) = pi/4;
+angle(angle>=3*pi/8&angle<5*pi/8) = pi/2;
+angle(angle>=5*pi/8&angle<=7*pi/8) = 3*pi/4;
+
+%% initialize the images
+[nr, nc] = size(img);
+edge = zeros(nr, nc);
+ 
+%% Non-Maximum Supression
+edge = non_maximum_suppression(magnitude, angle, edge); 
+ 
+edge = edge.*magnitude;
+
+%% Hysteresis thresholding
+% for weak edge
+threshold_low = threshold_low * max(edge(:));
+% for strong edge
+threshold_high = threshold_high * max(edge(:));  
+linked_edge = zeros(nr, nc); 
+linked_edge = hysteresis_thresholding(threshold_low, threshold_high, linked_edge, edge, angle);
+imshow(linked_edge);
+
+%% non_maximum_suppression function
+function edge=non_maximum_suppression(magnitude, angle, edge)
+magnitude=padarray(magnitude,[1,1],0);
+[m,n]=size(magnitude);
+for i=1:m
+    for j=1:n
+        if magnitude(i,j)~=0
+            if tan(angle(i-1,j-1))==0
+                if magnitude(i,j)==max(max(magnitude(i,j),magnitude(i+1,j)),magnitude(i-1,j))
+                    edge(i-1,j-1)=1;
+                end
+            elseif tan(angle(i-1,j-1))==-1
+                if magnitude(i,j)==max(max(magnitude(i,j),magnitude(i+1,j+1)),magnitude(i-1,j-1))
+                    edge(i-1,j-1)=1;
+                end 
+            elseif tan(angle(i-1,j-1))==1
+                if magnitude(i,j)==max(max(magnitude(i,j),magnitude(i+1,j-1)),magnitude(i-1,j+1))
+                    edge(i-1,j-1)=1;
+                end   
+            else
+                 if magnitude(i,j)==max(max(magnitude(i,j),magnitude(i,j-1)),magnitude(i,j+1))
+                    edge(i-1,j-1)=1;
+                 end  
+            end
+        end
+    end
+end
+end
+
+%% hysteresis_thresholding function
+function linked_edge=hysteresis_thresholding(threshold_low, threshold_high, linked_edge, edge, angle)
+edge=padarray(edge,[1,1],0);
+angle=padarray(angle,[1,1],0);
+temp_linked_edge=padarray(linked_edge,[1,1],0);
+[m,n]=size(edge);
+for i=1:m
+    for j=1:n
+        if edge(i,j)>=threshold_high || 
+            temp_linked_edge(i,j)=1;
+            if tan(angle(i,j))==0
+                if edge(i-1,j) > threshold_low
+                    temp_linked_edge(i-1,j)=1;
+                end
+                if edge(i+1,j) > threshold_low
+                    temp_linked_edge(i+1,j)=1;
+                end
+            elseif tan(angle(i,j))==1
+                if edge(i-1,j-1) > threshold_low
+                    temp_linked_edge(i-1,j-1)=1;
+                end
+                if edge(i+1,j+1) > threshold_low
+                    temp_linked_edge(i+1,j+1)=1;
+                end
+            elseif tan(angle(i,j))==-1
+                if edge(i-1,j+1) > threshold_low
+                    temp_linked_edge(i-1,j+1)=1;
+                end
+                if edge(i+1,j-1) > threshold_low
+                    temp_linked_edge(i+1,j-1)=1;
+                end
+            else
+                if edge(i,j-1) > threshold_low
+                    temp_linked_edge(i,j-1)=1;
+                end
+                if edge(i,j+1) > threshold_low
+                    temp_linked_edge(i,j+1)=1;
+                end  
+            end
+        end
+    end
+end
+linked_edge=temp_linked_edge(2:m-1,2:n-1);
+end
+
