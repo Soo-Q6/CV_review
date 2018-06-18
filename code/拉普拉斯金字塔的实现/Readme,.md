@@ -1,0 +1,1 @@
+实现genPyramids1中的expand和reduce函数，他们两个的输入都是图像+一个可分离的滤波器w，利用上课讲的expand和reduce实现这两个函数。
