@@ -1,4 +1,4 @@
-function [Ix, E, rmIdx] = rmVerSeam(I, Mx, Tbx)
+function [Ix, E, rmIdx] = addVerSeam(I, Mx, Tbx)
 % I is the image. Note that I could be color or grayscale image.
 % Mx is the cumulative minimum energy map along vertical direction.
 % Tbx is the backtrack table along vertical direction.
@@ -10,7 +10,8 @@ rmIdx = zeros(ny, 1);
 Ix = uint8(zeros(ny, nx-1, nz));
 
 %% Add your code here
-I_tmp=I;
+I_tmp=zeros(ny,nx+1,nz);
+I_tmp(:,1:nx,:)=I;
 E=min(Mx(ny,:));
 tmp=find(Mx(ny,:)==E);
 rmIdx(ny)=tmp(1);
@@ -19,12 +20,13 @@ for i=ny-1:-1:2
     rmIdx(i-1)=rmIdx(i)+Tbx(i,rmIdx(i));
 end
 for i=1:ny
-    I(i,rmIdx(i))=0;
-    for j=rmIdx(i):nx-1
-        I_tmp(i,j,:)=I_tmp(i,j+1,:);
+    %I(i,rmIdx(i))=0;
+    for j=nx:-1:rmIdx(i)
+        I_tmp(i,j+1,:)=I_tmp(i,j,:);
     end
+    %for j=rmIdx(i):nx-1
+        %I_tmp(i,j,:)=I_tmp(i,j+1,:);
+    %end
 end
-figure(2);
-imshow(uint8(I));
-Ix=I_tmp(:,1:nx-1,:);
+Ix=I_tmp;
 end

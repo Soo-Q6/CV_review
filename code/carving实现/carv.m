@@ -1,9 +1,13 @@
-function [Ic, T, rmIdxs, rmIdxs0] = carv(I, nr, nc)
+function [Ic, T, rmIdxs, rmIdxs0] = carv(I, nr, nc,mask)
 % I is the image being resized
 % [nr, nc] is the numbers of rows and columns to remove.
 % Ic is the resized image
 % T is the transport map
 % Memory saving way for carving
+
+if ~exist('mask')
+    mask=1;
+end
 DEBUG = 0;
 %[nx, ny, nz] = size(I);
 T = zeros(nr+1, nc+1);
@@ -17,7 +21,7 @@ rmHors = [];
 for i = 2 : nr+1
     % generate the energy map
 	e = genEngMap(TI{i-1, 1});
-
+    e=e.*mask;
     % dynamic programming matrix
     [My, Tby] = cumMinEngHor(e);
     [TI{i, 1}, E, rmIdxs{i,1}] = rmHorSeam(TI{i-1, 1}, My, Tby);
@@ -33,6 +37,7 @@ end
 rmVers = [];
 for i = 2 : nc+1
 	e = genEngMap(TI{1, i-1});
+    e=e.*mask;
 	[Mx,Tbx] = cumMinEngVer(e);
 	[TI{1, i}, E, rmIdxs{1,i}] = rmVerSeam(TI{1, i-1}, Mx, Tbx);
     if(DEBUG)
@@ -48,10 +53,12 @@ end
 for i = 2 : nr+1
 	for j = 2 : nc+1
 		e = genEngMap(TI{i-1, j});
+        e=e.*mask;
 		[My, Tby] = cumMinEngHor(e);
 		[Iy, Ey, rmHor] = rmHorSeam(TI{i-1, j}, My, Tby);
 		
 		e = genEngMap(TI{i, j-1});
+        e=e.*mask;
 		[Mx, Tbx] = cumMinEngVer(e);
 		[Ix, Ex, rmVer] = rmVerSeam(TI{i, j-1}, Mx, Tbx);
 		
@@ -198,5 +205,13 @@ end
 
 % get the final image
 Ic = TI{nr+1,nc+1};
+
+figure(1);
+subplot(1,2,1);
+imshow(uint8(I));
+title('原始的');
+subplot(1,2,2);
+imshow(uint8(Ic));
+title('缩放后');
 
 end

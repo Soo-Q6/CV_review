@@ -12,19 +12,15 @@ Iy = uint8(zeros(ny-1, nx, nz));
 %% Add your code here
 I_tmp=I;
 E=min(My(:,nx));
-tmp=find(My(:,nx)==E);
-rmIdx(nx)=tmp(1);
+rmIdx(nx)=find(My(:,nx)==E);
 rmIdx(nx-1)=rmIdx(nx)+Tby(rmIdx(nx),nx);
-for i=nx-1:-1:2
+for i=nx-1:2
     rmIdx(i-1)=rmIdx(i)+Tby(rmIdx(i),i);
 end
 for i=1:nx
-    I(rmIdx(i),i)=0;
     for j=rmIdx(i):ny-1
         I_tmp(j,i,:)=I_tmp(j+1,i,:);
     end
 end
-figure(2);
-imshow(uint8(I));
-Iy=I_tmp(1:ny-1,:,:);
+Iy=I_tmp(1:ny-1,:);
 end

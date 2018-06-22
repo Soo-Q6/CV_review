@@ -1,12 +1,12 @@
 
 % sift key point detection ------- 1 octave case
-im = imread('einstein.png');
+im = imread('lebron14.jpg');
 if(size(im,3) == 3)
     im = rgb2gray(im);
 end
 im = im2double(im);
 
-[pos, orient, scale, desc] = Sift1Scale(im, 'einstein');
+[pos, orient, scale, desc] = Sift1Scale(im, 'lebron');
 
 % 
 figure;imshow(im); hold on;

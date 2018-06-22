@@ -19,12 +19,8 @@ for i=ny-1:-1:2
     rmIdx(i-1)=rmIdx(i)+Tbx(i,rmIdx(i));
 end
 for i=1:ny
-    I(i,rmIdx(i))=0;
     for j=rmIdx(i):nx-1
-        I_tmp(i,j,:)=I_tmp(i,j+1,:);
+        I_tmp(i,j,:)=I_tmp(i,i+1,:);
     end
 end
-figure(2);
-imshow(uint8(I));
-Ix=I_tmp(:,1:nx-1,:);
 end

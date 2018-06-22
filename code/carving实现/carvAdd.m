@@ -96,6 +96,14 @@ end;
 % the output image
 Ic = TI{nr+1,nc+1};
 
+figure(1);
+subplot(1,2,1);
+imshow(uint8(I));
+title('原始的');
+subplot(1,2,2);
+imshow(uint8(Ic));
+title('膨胀后');
+
 %%
 % checking carving along the path
 rmIdxs0 = cell(nc+nr,1);
